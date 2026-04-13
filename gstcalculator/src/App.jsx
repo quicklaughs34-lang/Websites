@@ -1,71 +1,156 @@
-import { useState } from 'react'
-import AdBanner from './components/AdBanner'
-import ModeToggle from './components/ModeToggle'
-import ResultCard from './components/ResultCard'
-import { calculateGst, formatCurrency } from './utils/gst'
+import { useEffect, useState } from 'react'
+import Footer from './components/Footer'
+import NavBar from './components/NavBar'
+import { articles } from './content/articles'
+import ArticlePage from './pages/ArticlePage'
+import BlogPage from './pages/BlogPage'
+import CalculatorPage from './pages/CalculatorPage'
+import ContactPage from './pages/ContactPage'
+import HomePage from './pages/HomePage'
+import StaticPage from './pages/StaticPage'
 
-const GST_OPTIONS = [5, 12, 18, 28]
-
-function ReceiptIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" stroke="currentColor" strokeWidth="1.8">
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M7 3h10a1 1 0 0 1 1 1v16l-3-2-3 2-3-2-3 2V4a1 1 0 0 1 1-1Z"
-      />
-      <path strokeLinecap="round" strokeLinejoin="round" d="M9 8h6M9 12h6" />
-    </svg>
-  )
+const staticPages = {
+  '/about': {
+    eyebrow: 'About Us',
+    title: 'About Free GST Calculator India',
+    intro:
+      'Free GST Calculator India is a simple educational website built to help Indian users calculate GST quickly and understand tax-related pricing with less confusion.',
+    sections: [
+      {
+        heading: 'What we do',
+        paragraphs: [
+          'We provide a free GST calculator that helps users add GST to a base amount or remove GST from a tax-inclusive amount. The website is designed for speed, clarity, and mobile use so that calculations can be done in seconds.',
+          'In addition to the calculator, we publish easy-to-read GST articles in simple English. The goal is to make common GST topics understandable for freelancers, shop owners, students, and general users who need practical tax information.',
+        ],
+      },
+      {
+        heading: 'Who this website is for',
+        paragraphs: [
+          'This website is useful for business owners, invoice creators, accountants, online sellers, service providers, and buyers who want to check GST amounts before making decisions.',
+          'We focus on practical use cases such as estimating total cost, checking inclusive bills, understanding GST slabs, and learning the basics without unnecessary jargon.',
+        ],
+      },
+      {
+        heading: 'Important note',
+        paragraphs: [
+          'The content on this website is provided for general educational and informational purposes. It should not be treated as legal, accounting, or tax filing advice. For classification issues, registration, compliance, or return filing matters, users should consult a qualified tax professional.',
+        ],
+      },
+    ],
+  },
+  '/privacy-policy': {
+    eyebrow: 'Privacy Policy',
+    title: 'Privacy Policy',
+    intro:
+      'This Privacy Policy explains how information may be handled when you use Free GST Calculator India.',
+    sections: [
+      {
+        heading: 'Information we collect',
+        paragraphs: [
+          'This website is primarily a simple calculator and informational website. We do not ask users to create accounts or submit sensitive financial records through the calculator itself.',
+          'If you contact us by email, we may receive the information you include in your message, such as your name, email address, and the content of your query.',
+        ],
+      },
+      {
+        heading: 'Cookies and analytics',
+        paragraphs: [
+          'This website may use basic analytics tools, cookies, or similar technologies in the future to understand traffic, improve user experience, and measure content performance.',
+          'If advertising services such as Google AdSense are enabled, third-party vendors may use cookies to serve ads based on your visits to this and other websites. Users should review the privacy policies of those vendors for more details.',
+        ],
+      },
+      {
+        heading: 'How information is used',
+        paragraphs: [
+          'Any information received through contact email may be used only to respond to messages, improve the website, or address technical or content-related issues.',
+          'We do not sell personal information. We may update this policy from time to time if the website adds new features, analytics, or advertising tools.',
+        ],
+      },
+    ],
+  },
+  '/terms-and-conditions': {
+    eyebrow: 'Terms & Conditions',
+    title: 'Terms & Conditions',
+    intro:
+      'These Terms & Conditions govern the use of Free GST Calculator India. By using this website, you agree to these terms.',
+    sections: [
+      {
+        heading: 'Website use',
+        paragraphs: [
+          'This website is provided for general informational and calculation purposes only. While we aim to keep calculations and content accurate, we do not guarantee that all information will always be complete, current, or suitable for every individual situation.',
+          'Users are responsible for verifying GST classifications, tax applicability, and compliance requirements before acting on the results shown on this website.',
+        ],
+      },
+      {
+        heading: 'No professional advice',
+        paragraphs: [
+          'Nothing on this website should be considered legal, financial, accounting, or tax advice. The calculator is a convenience tool, not a substitute for professional review.',
+          'If a transaction or filing decision has legal or financial consequences, consult a qualified chartered accountant, tax practitioner, or legal advisor.',
+        ],
+      },
+      {
+        heading: 'External services and updates',
+        paragraphs: [
+          'The website may include analytics tools, advertising services, or third-party integrations in the future. Their use may be subject to separate terms and policies.',
+          'We may modify or update these Terms & Conditions at any time without prior notice. Continued use of the website after changes are posted indicates acceptance of the updated terms.',
+        ],
+      },
+    ],
+  },
 }
 
-function WalletIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" stroke="currentColor" strokeWidth="1.8">
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M3 8.5A2.5 2.5 0 0 1 5.5 6h11A2.5 2.5 0 0 1 19 8.5V18a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8.5Z"
-      />
-      <path strokeLinecap="round" strokeLinejoin="round" d="M16 13h5v-3a2 2 0 0 0-2-2h-2" />
-      <circle cx="16.5" cy="11.5" r="0.75" fill="currentColor" stroke="none" />
-    </svg>
-  )
-}
-
-function SparkIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" stroke="currentColor" strokeWidth="1.8">
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="m12 3 1.8 4.2L18 9l-4.2 1.8L12 15l-1.8-4.2L6 9l4.2-1.8L12 3Z"
-      />
-      <path strokeLinecap="round" strokeLinejoin="round" d="m19 15 .8 1.8L21.5 18l-1.7.8L19 20.5l-.8-1.7L16.5 18l1.7-.7L19 15ZM5 14l.9 2.1L8 17l-2.1.9L5 20l-.9-2.1L2 17l2.1-.9L5 14Z" />
-    </svg>
-  )
+function getCurrentPath() {
+  return window.location.pathname || '/'
 }
 
 function App() {
-  const [amount, setAmount] = useState('')
-  const [gstRate, setGstRate] = useState(18)
-  const [mode, setMode] = useState('add')
+  const [path, setPath] = useState(getCurrentPath)
 
-  const numericAmount = Number(amount)
-  const isValidAmount = amount !== '' && Number.isFinite(numericAmount) && numericAmount >= 0
+  useEffect(() => {
+    function handleRouteChange() {
+      setPath(getCurrentPath())
+    }
 
-  const { gstAmount, finalAmount } = calculateGst(numericAmount, gstRate, mode)
+    window.addEventListener('popstate', handleRouteChange)
+    return () => window.removeEventListener('popstate', handleRouteChange)
+  }, [])
 
-  const amountLabel = mode === 'add' ? 'Final Amount' : 'Base Amount'
-  const helperText =
-    mode === 'add'
-      ? 'Enter a pre-tax amount to see the GST-inclusive total instantly.'
-      : 'Enter a GST-inclusive amount to extract the base price instantly.'
+  useEffect(() => {
+    const article = articles.find((item) => `/blog/${item.slug}` === path)
+    if (path === '/') return void (document.title = 'Free GST Calculator India')
+    if (path === '/calculator') return void (document.title = 'GST Calculator India')
+    if (path === '/blog') return void (document.title = 'GST Blog | Free GST Calculator India')
+    if (article) return void (document.title = `${article.title} | Free GST Calculator India`)
+    if (path === '/contact') return void (document.title = 'Contact Us | Free GST Calculator India')
+    const staticPage = staticPages[path]
+    if (staticPage) return void (document.title = `${staticPage.title} | Free GST Calculator India`)
+    document.title = 'Free GST Calculator India'
+  }, [path])
 
-  function handleReset() {
-    setAmount('')
-    setGstRate(18)
-    setMode('add')
+  function navigate(nextPath) {
+    window.history.pushState({}, '', nextPath)
+    setPath(nextPath)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  function renderPage() {
+    if (path === '/') return <HomePage articles={articles} navigate={navigate} />
+    if (path === '/calculator') return <CalculatorPage />
+    if (path === '/blog') return <BlogPage articles={articles} navigate={navigate} />
+    if (path === '/contact') return <ContactPage />
+    const article = articles.find((item) => `/blog/${item.slug}` === path)
+    if (article) return <ArticlePage article={article} />
+    const staticPage = staticPages[path]
+    if (staticPage) return <StaticPage {...staticPage} />
+
+    return (
+      <section className="mx-auto w-full max-w-4xl rounded-[2rem] border border-white/70 bg-white/70 p-6 text-center shadow-premium backdrop-blur-xl sm:p-8">
+        <p className="text-sm font-semibold uppercase tracking-[0.28em] text-emerald-700">Page Not Found</p>
+        <h1 className="mt-3 text-3xl font-black tracking-tight text-slate-900">The page you requested is not available.</h1>
+        <button type="button" onClick={() => navigate('/')} className="mt-6 rounded-full bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800">
+          Back to home
+        </button>
+      </section>
+    )
   }
 
   return (
@@ -74,133 +159,10 @@ function App() {
       <div className="absolute -left-12 top-24 h-40 w-40 rounded-full bg-emerald-300/30 blur-3xl animate-float" />
       <div className="absolute -right-12 bottom-20 h-48 w-48 rounded-full bg-rose-300/30 blur-3xl animate-float" />
 
-      <main className="relative mx-auto flex min-h-screen w-full max-w-6xl flex-col px-4 py-6 sm:px-6 sm:py-10">
-        <section className="mx-auto w-full max-w-5xl">
-          <AdBanner label="Top banner placeholder for Google AdSense" />
-        </section>
-
-        <section className="mx-auto flex w-full max-w-5xl flex-1 items-center justify-center py-6 sm:py-10">
-          <div className="grid w-full items-start gap-6 lg:grid-cols-[1.05fr_0.95fr]">
-            <div className="rounded-[2rem] border border-white/70 bg-white/70 p-6 shadow-premium backdrop-blur-xl sm:p-8">
-              <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-sm font-semibold text-emerald-700">
-                <SparkIcon />
-                Free GST Calculator India
-              </div>
-
-              <h1 className="mt-4 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
-                Calculate GST in seconds.
-              </h1>
-              <p className="mt-3 max-w-xl text-sm leading-6 text-slate-600 sm:text-base">
-                Add or remove GST with a premium, mobile-first calculator built for quick daily use.
-              </p>
-
-              <div className="mt-8 space-y-6">
-                <ModeToggle mode={mode} onChange={setMode} />
-
-                <div className="grid gap-5">
-                  <label className="block">
-                    <span className="mb-2 block text-sm font-semibold text-slate-700">Amount</span>
-                    <div className="relative">
-                        <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-base font-semibold text-slate-400">
-                          {'\u20B9'}
-                        </span>
-                      <input
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        inputMode="decimal"
-                        placeholder={mode === 'add' ? 'Enter amount before GST' : 'Enter amount including GST'}
-                        value={amount}
-                        onChange={(event) => setAmount(event.target.value)}
-                        className="h-14 w-full rounded-2xl border border-slate-200 bg-white pl-10 pr-4 text-base font-medium text-slate-900 shadow-sm outline-none transition duration-300 placeholder:text-slate-400 focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100"
-                      />
-                    </div>
-                    {!isValidAmount && amount !== '' ? (
-                      <span className="mt-2 block text-sm font-medium text-rose-500">
-                        Please enter a valid non-negative amount.
-                      </span>
-                    ) : (
-                      <span className="mt-2 block text-sm text-slate-500">{helperText}</span>
-                    )}
-                  </label>
-
-                  <label className="block">
-                    <span className="mb-2 block text-sm font-semibold text-slate-700">GST Rate</span>
-                    <select
-                      value={gstRate}
-                      onChange={(event) => setGstRate(Number(event.target.value))}
-                      className="h-14 w-full rounded-2xl border border-slate-200 bg-white px-4 text-base font-medium text-slate-900 shadow-sm outline-none transition duration-300 focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100"
-                    >
-                      {GST_OPTIONS.map((option) => (
-                        <option key={option} value={option}>
-                          {option}% GST
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={handleReset}
-                  className="inline-flex h-12 items-center justify-center rounded-2xl bg-slate-900 px-5 text-sm font-semibold text-white transition duration-300 hover:-translate-y-0.5 hover:bg-slate-800 active:translate-y-0"
-                >
-                  Reset Calculator
-                </button>
-              </div>
-            </div>
-
-            <div className="rounded-[2rem] border border-white/70 bg-white/65 p-6 shadow-premium backdrop-blur-xl sm:p-8">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-sm font-semibold uppercase tracking-[0.28em] text-slate-500">Live Result</p>
-                  <h2 className="mt-2 text-2xl font-black tracking-tight text-slate-900">Instant GST breakdown</h2>
-                </div>
-                <div className="flex h-14 w-14 items-center justify-center rounded-3xl bg-gradient-to-br from-emerald-500 to-cyan-500 text-white shadow-lg shadow-emerald-500/30">
-                  <ReceiptIcon />
-                </div>
-              </div>
-
-              <div className="mt-4 rounded-3xl border border-slate-200 bg-slate-50/80 p-4">
-                <p className="text-sm leading-6 text-slate-600">
-                  {mode === 'add'
-                    ? 'Exclusive amount + GST = total payable amount.'
-                    : 'Inclusive amount - GST = base amount before tax.'}
-                </p>
-              </div>
-
-              <div className={`mt-6 space-y-4 ${isValidAmount ? 'animate-fade-up' : ''}`}>
-                <ResultCard
-                  title="GST Amount"
-                  value={isValidAmount ? formatCurrency(gstAmount) : '\u20B90.00'}
-                  icon={<ReceiptIcon />}
-                />
-                <ResultCard
-                  title={amountLabel}
-                  value={isValidAmount ? formatCurrency(finalAmount) : '\u20B90.00'}
-                  icon={<WalletIcon />}
-                  highlight
-                />
-              </div>
-
-              <div className="mt-6 rounded-3xl bg-slate-900 px-5 py-4 text-white">
-                <p className="text-sm text-slate-300">Selected Mode</p>
-                <p className="mt-1 text-lg font-semibold">
-                  {mode === 'add' ? 'Add GST to amount' : 'Remove GST from amount'}
-                </p>
-                <p className="mt-2 text-sm text-slate-300">Current rate: {gstRate}%</p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="mx-auto mt-2 w-full max-w-5xl">
-          <AdBanner label="Bottom banner placeholder for Google AdSense" />
-        </section>
-
-        <footer className="relative mx-auto mt-6 w-full max-w-5xl pb-2 pt-5 text-center text-sm font-medium text-slate-600">
-          {'Made with \u2764\uFE0F'}
-        </footer>
+      <main className="relative mx-auto flex min-h-screen w-full max-w-7xl flex-col px-4 py-6 sm:px-6 sm:py-10">
+        <NavBar currentPath={path} navigate={navigate} />
+        <div className="mt-6 flex-1">{renderPage()}</div>
+        <Footer navigate={navigate} />
       </main>
     </div>
   )
