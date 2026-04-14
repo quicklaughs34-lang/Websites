@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Analytics } from '@vercel/analytics/react'
 import Footer from './components/Footer'
 import NavBar from './components/NavBar'
 import { articles } from './content/articles'
@@ -164,6 +165,7 @@ function App() {
         <div className="mt-6 flex-1">{renderPage()}</div>
         <Footer navigate={navigate} />
       </main>
+      <Analytics />
     </div>
   )
 }
