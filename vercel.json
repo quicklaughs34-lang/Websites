@@ -1,0 +1,7 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "cd SooriyaChessAcademy && npm run build",
+  "devCommand": "cd SooriyaChessAcademy && npm run dev",
+  "installCommand": "cd SooriyaChessAcademy && npm install",
+  "outputDirectory": "SooriyaChessAcademy/.next"
+}
