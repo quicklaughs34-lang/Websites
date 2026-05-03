@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, type Variants } from "framer-motion";
-import { Award, BookOpenCheck, CalendarCheck, ChevronRight, Medal, MessageCircle, ShieldCheck, Sparkles, Star, Trophy, Users } from "lucide-react";
+import { BookOpenCheck, CalendarCheck, ChevronRight, MessageCircle, ShieldCheck, Trophy, Users } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
@@ -131,13 +131,13 @@ export default function SubPage({ kind }: { kind: keyof typeof pageData }) {
   const data = pageData[kind];
 
   return (
-    <main className="min-h-screen overflow-hidden bg-[#070604] px-3 py-4 text-stone-50 sm:px-6">
+    <main className="min-h-screen overflow-hidden bg-[#070604] px-3 py-4 text-stone-50 sm:px-5 xl:px-8">
       <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_18%_8%,rgba(245,158,11,0.2),transparent_28%),radial-gradient(circle_at_84%_16%,rgba(37,99,235,0.15),transparent_24%),linear-gradient(180deg,#100d0a_0%,#17130f_44%,#070604_100%)]" />
 
-      <motion.header className="relative z-10 mx-auto flex max-w-7xl flex-col gap-5 rounded-[1.5rem] border border-white/10 bg-white/[0.045] px-5 py-4 backdrop-blur-2xl lg:flex-row lg:items-center lg:justify-between" initial={{ opacity: 0, y: -14 }} animate={{ opacity: 1, y: 0 }}>
+      <motion.header className="relative z-10 mx-auto flex w-full max-w-[1680px] flex-col gap-5 border-b border-white/10 px-2 pb-5 pt-1 lg:flex-row lg:items-center lg:justify-between" initial={{ opacity: 0, y: -14 }} animate={{ opacity: 1, y: 0 }}>
         <Link href="/" className="group">
-          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-amber-200">Sooriya Chess Academy</p>
-          <p className="mt-2 text-sm text-stone-300 group-hover:text-white">Premium chess coaching for children</p>
+          <p className="font-display text-3xl leading-none text-white sm:text-4xl lg:text-5xl">Sooriya Chess Academy</p>
+          <p className="mt-2 text-sm uppercase tracking-[0.22em] text-amber-200 group-hover:text-amber-100">Premium chess coaching for children</p>
         </Link>
         <nav className="flex flex-wrap items-center gap-3 text-sm text-stone-300" aria-label="Primary navigation">
           {[
@@ -154,12 +154,12 @@ export default function SubPage({ kind }: { kind: keyof typeof pageData }) {
         </nav>
       </motion.header>
 
-      <section className="relative z-10 mx-auto mt-6 grid max-w-7xl gap-6 rounded-[1.75rem] border border-white/10 bg-white/[0.035] p-5 shadow-[0_24px_80px_rgba(0,0,0,0.42)] backdrop-blur-2xl sm:p-8 lg:grid-cols-[1.05fr_0.95fr]">
+      <section className="relative z-10 mx-auto mt-6 grid w-full max-w-[1680px] gap-8 rounded-[1.25rem] border border-white/10 bg-white/[0.035] p-5 shadow-[0_24px_80px_rgba(0,0,0,0.42)] backdrop-blur-2xl sm:p-8 xl:grid-cols-[0.88fr_1.12fr]">
         <motion.div variants={stagger} initial="hidden" animate="visible" className="self-center">
           <motion.p className="text-xs font-semibold uppercase tracking-[0.28em] text-amber-200" variants={reveal}>
             {data.eyebrow}
           </motion.p>
-          <motion.h1 className="mt-5 max-w-4xl font-display text-5xl leading-[0.9] tracking-tight text-white sm:text-7xl" variants={reveal}>
+          <motion.h1 className="mt-5 max-w-5xl font-display text-5xl leading-[0.9] tracking-tight text-white sm:text-7xl xl:text-8xl" variants={reveal}>
             {data.title}
           </motion.h1>
           <motion.p className="mt-6 max-w-2xl text-lg leading-8 text-stone-300" variants={reveal}>
@@ -175,7 +175,7 @@ export default function SubPage({ kind }: { kind: keyof typeof pageData }) {
           </motion.div>
         </motion.div>
 
-        <motion.div className="relative min-h-[360px] overflow-hidden rounded-[1.5rem] border border-white/10 bg-black/20 p-5" initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.14 }}>
+        <motion.div className="relative min-h-[420px] overflow-hidden rounded-[1.25rem] border border-white/10 bg-black/20 p-5 xl:min-h-[520px]" initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.14 }}>
           <motion.div className="absolute inset-0 opacity-30 [background-image:linear-gradient(45deg,rgba(255,255,255,0.12)_25%,transparent_25%,transparent_75%,rgba(255,255,255,0.12)_75%),linear-gradient(45deg,rgba(255,255,255,0.12)_25%,transparent_25%,transparent_75%,rgba(255,255,255,0.12)_75%)] [background-position:0_0,24px_24px] [background-size:48px_48px]" animate={{ backgroundPosition: ["0px 0px, 24px 24px", "48px 48px, 72px 72px"] }} transition={{ duration: 12, repeat: Infinity, ease: "linear" }} />
           {["♛", "♞", "♜", "♚"].map((piece, index) => (
             <motion.span
@@ -195,7 +195,7 @@ export default function SubPage({ kind }: { kind: keyof typeof pageData }) {
         </motion.div>
       </section>
 
-      <motion.section className="relative z-10 mx-auto mt-6 grid max-w-7xl gap-4 lg:grid-cols-3" variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }}>
+      <motion.section className="relative z-10 mx-auto mt-6 grid w-full max-w-[1680px] gap-4 lg:grid-cols-3" variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }}>
         {data.cards.map(([title, copy, meta], index) => {
           const Icon = icons[index % icons.length];
           return (
@@ -213,7 +213,7 @@ export default function SubPage({ kind }: { kind: keyof typeof pageData }) {
         })}
       </motion.section>
 
-      <section className="relative z-10 mx-auto mt-6 grid max-w-7xl gap-6 rounded-[1.75rem] border border-white/10 bg-white/[0.035] p-5 backdrop-blur-2xl sm:p-8 lg:grid-cols-[0.9fr_1.1fr]">
+      <section className="relative z-10 mx-auto mt-6 grid w-full max-w-[1680px] gap-6 rounded-[1.25rem] border border-white/10 bg-white/[0.035] p-5 backdrop-blur-2xl sm:p-8 lg:grid-cols-[0.82fr_1.18fr]">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.28em] text-amber-200">Progress System</p>
           <h2 className="mt-4 font-display text-4xl leading-tight text-white sm:text-5xl">A guided path from demo to measurable growth</h2>
@@ -230,7 +230,7 @@ export default function SubPage({ kind }: { kind: keyof typeof pageData }) {
       </section>
 
       {kind === "contact" ? (
-        <section className="relative z-10 mx-auto mt-6 max-w-7xl rounded-[1.75rem] border border-amber-200/20 bg-gradient-to-b from-amber-200/12 to-white/[0.035] p-5 backdrop-blur-2xl sm:p-8">
+        <section className="relative z-10 mx-auto mt-6 w-full max-w-[1680px] rounded-[1.25rem] border border-amber-200/20 bg-gradient-to-b from-amber-200/12 to-white/[0.035] p-5 backdrop-blur-2xl sm:p-8">
           <div className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr]">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.28em] text-amber-200">Lead Capture</p>
@@ -265,7 +265,7 @@ export default function SubPage({ kind }: { kind: keyof typeof pageData }) {
         </section>
       ) : null}
 
-      <footer className="relative z-10 mx-auto mt-6 flex max-w-7xl flex-col gap-5 rounded-[1.5rem] border border-white/10 bg-white/[0.035] p-6 backdrop-blur-2xl sm:flex-row sm:items-center sm:justify-between">
+      <footer className="relative z-10 mx-auto mt-6 flex w-full max-w-[1680px] flex-col gap-5 rounded-[1.25rem] border border-white/10 bg-white/[0.035] p-6 backdrop-blur-2xl sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-stone-300">Sooriya Chess Academy. Chennai coaching with online access.</p>
         <div className="flex flex-wrap gap-4 text-sm text-stone-300">
           <a className="inline-flex items-center gap-2 hover:text-white" href={`https://wa.me/${contact.whatsapp}`}>

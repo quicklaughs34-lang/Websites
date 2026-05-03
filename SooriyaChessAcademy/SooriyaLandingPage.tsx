@@ -392,7 +392,7 @@ function AmbientBackground({ reduceMotion }: { reduceMotion: boolean | null }) {
 
 function FloatingPieces({ parallax, reduceMotion }: { parallax: { x: number; y: number }; reduceMotion: boolean | null }) {
   return (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[1.75rem]">
+    <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[1.25rem]">
       {floatingPieces.map((piece, index) => (
         <motion.span
           key={piece.glyph}
@@ -419,7 +419,7 @@ function PremiumSection({ children, className, id }: { children: ReactNode; clas
     <motion.section
       id={id}
       className={cx(
-        "relative z-10 mx-auto mb-6 max-w-7xl overflow-hidden rounded-[1.75rem] border border-white/10 bg-white/[0.035] p-5 shadow-[0_24px_80px_rgba(0,0,0,0.42)] backdrop-blur-2xl sm:p-8",
+        "relative z-10 mx-auto mb-6 w-full max-w-[1680px] overflow-hidden rounded-[1.25rem] border border-white/10 bg-white/[0.035] p-5 shadow-[0_24px_80px_rgba(0,0,0,0.42)] backdrop-blur-2xl sm:p-8",
         "before:pointer-events-none before:absolute before:inset-x-8 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-amber-200/45 before:to-transparent",
         className,
       )}
@@ -477,10 +477,7 @@ function CountUp({ value, suffix }: { value: number; suffix: string }) {
   const reduceMotion = useReducedMotion();
 
   useEffect(() => {
-    if (reduceMotion) {
-      setCount(value);
-      return undefined;
-    }
+    if (reduceMotion) return undefined;
     let frame = 0;
     const total = 46;
     const timer = window.setInterval(() => {
@@ -491,7 +488,9 @@ function CountUp({ value, suffix }: { value: number; suffix: string }) {
     return () => window.clearInterval(timer);
   }, [reduceMotion, value]);
 
-  return <>{count.toLocaleString("en-IN")}{suffix}</>;
+  const displayCount = reduceMotion ? value : count;
+
+  return <>{displayCount.toLocaleString("en-IN")}{suffix}</>;
 }
 
 function BoardCell({ square, piece, highlighted, active, onSelect }: { square: string; piece?: Piece; highlighted: boolean; active: boolean; onSelect: (square: string) => void }) {
@@ -559,7 +558,13 @@ export default function SooriyaLandingPage() {
 
   useEffect(() => {
     if (!scenarioAutoplay || reduceMotion) return undefined;
-    const timer = window.setInterval(() => setActiveScenario((current) => (current + 1) % scenarios.length), 4200);
+    const timer = window.setInterval(() => {
+      setActiveScenario((current) => {
+        const next = (current + 1) % scenarios.length;
+        setActiveSquare(scenarios[next].squares[0]);
+        return next;
+      });
+    }, 9000);
     return () => window.clearInterval(timer);
   }, [reduceMotion, scenarioAutoplay]);
 
@@ -569,23 +574,20 @@ export default function SooriyaLandingPage() {
     return () => window.clearInterval(timer);
   }, [reduceMotion, testimonialAutoplay]);
 
-  useEffect(() => {
-    setActiveSquare(scenarios[activeScenario].squares[0]);
-  }, [activeScenario]);
-
   const scenario = scenarios[activeScenario];
   const program = programs[activeProgram];
   const testimonial = testimonials[activeTestimonial];
+  const selectedSquare = activeSquare || scenario.squares[0];
 
   const liveUpdate = useMemo(() => `${scenario.label}: ${scenario.title}. Focus move ${scenario.move}.`, [scenario]);
   const activeSquareCopy = useMemo(() => {
-    if (scenario.squares.includes(activeSquare)) {
-      return `${activeSquare} is one of the focus squares in this lesson. Students learn what this square controls and how it changes the plan.`;
+    if (scenario.squares.includes(selectedSquare)) {
+      return `${selectedSquare} is one of the focus squares in this lesson. Students learn what this square controls and how it changes the plan.`;
     }
-    const piece = scenario.board[activeSquare];
-    if (piece) return `${activeSquare} holds the ${piece.label.toLowerCase()}. Hovering pieces helps students connect board coordinates with real plans.`;
-    return `${activeSquare} is currently empty. Empty squares still matter because strong players think about control, threats, and future routes.`;
-  }, [activeSquare, scenario]);
+    const piece = scenario.board[selectedSquare];
+    if (piece) return `${selectedSquare} holds the ${piece.label.toLowerCase()}. Hovering pieces helps students connect board coordinates with real plans.`;
+    return `${selectedSquare} is currently empty. Empty squares still matter because strong players think about control, threats, and future routes.`;
+  }, [selectedSquare, scenario]);
 
   const handleProgramKeyDown = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
     if (event.key !== "ArrowRight" && event.key !== "ArrowLeft" && event.key !== "Home" && event.key !== "End") return;
@@ -630,7 +632,7 @@ export default function SooriyaLandingPage() {
   };
 
   return (
-    <main className="min-h-screen overflow-hidden bg-[#070604] px-3 py-4 text-stone-50 sm:px-6" onMouseMove={handleMouseMove}>
+    <main className="min-h-screen overflow-hidden bg-[#070604] px-3 py-4 text-stone-50 sm:px-5 xl:px-8" onMouseMove={handleMouseMove}>
       <AmbientBackground reduceMotion={reduceMotion} />
       <CursorGlow x={cursor.x} y={cursor.y} />
       <motion.div
@@ -639,12 +641,12 @@ export default function SooriyaLandingPage() {
         transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
       />
 
-      <PremiumSection className="p-4 sm:p-6">
+      <PremiumSection className="p-4 sm:p-6 xl:p-8">
         <FloatingPieces parallax={parallax} reduceMotion={reduceMotion} />
-        <header className="relative z-10 flex flex-col gap-5 rounded-3xl border border-white/10 bg-white/[0.045] px-5 py-4 backdrop-blur-2xl lg:flex-row lg:items-center lg:justify-between">
-          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={spring}>
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-amber-200">Sooriya Chess Academy</p>
-            <p className="mt-2 text-sm text-stone-300">Premium chess coaching for children in Chennai and beyond</p>
+        <header className="relative z-10 flex flex-col gap-5 border-b border-white/10 px-2 pb-5 pt-1 lg:flex-row lg:items-center lg:justify-between">
+          <motion.div className="min-w-0" initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={spring}>
+            <p className="font-display text-3xl leading-none text-white sm:text-4xl lg:text-5xl">Sooriya Chess Academy</p>
+            <p className="mt-2 text-sm uppercase tracking-[0.22em] text-amber-200">Chennai + online chess coaching for young competitors</p>
           </motion.div>
           <nav className="flex flex-wrap items-center gap-3 text-sm text-stone-300" aria-label="Primary navigation">
             {["Programs", "Training Flow", "Stories", "Contact"].map((item) => (
@@ -663,19 +665,18 @@ export default function SooriyaLandingPage() {
           </nav>
         </header>
 
-        <div className="relative z-10 grid gap-8 pt-10 lg:grid-cols-[1.02fr_0.98fr] lg:pt-14">
+        <div className="relative z-10 grid gap-8 pt-8 lg:grid-cols-[0.82fr_1.18fr] lg:items-start lg:pt-8 2xl:grid-cols-[0.78fr_1.22fr]">
           <motion.div className="self-center" variants={stagger} initial="hidden" animate="visible">
             <motion.p className="text-xs font-semibold uppercase tracking-[0.28em] text-amber-200" variants={reveal}>
-              Interactive chess learning. Premium parent-facing presentation.
+              Live lessons. Tournament thinking. Parent-trusted progress.
             </motion.p>
-            <motion.h1 className="mt-5 max-w-4xl font-display text-5xl leading-[0.9] tracking-tight text-white sm:text-7xl lg:text-8xl" variants={reveal}>
-              Build calm thinkers, sharper players, and confident tournament competitors.
+            <motion.h1 className="mt-5 max-w-5xl font-display text-5xl leading-[0.9] tracking-tight text-white sm:text-6xl xl:text-7xl 2xl:text-8xl" variants={reveal}>
+              Chess coaching that feels like a live masterclass.
             </motion.h1>
-            <motion.p className="mt-6 max-w-2xl text-lg leading-8 text-stone-300" variants={reveal}>
-              Sooriya Chess Academy combines local Chennai coaching with online access, structured progression, and
-              tournament-aware training so children do more than just learn the rules. They learn how to think.
+            <motion.p className="mt-5 max-w-2xl text-base leading-7 text-stone-300 xl:text-lg xl:leading-8" variants={reveal}>
+              Sooriya Chess Academy turns each class into a guided board experience: animated ideas, clear plans, Chennai-based mentoring, online access, and tournament-aware training for children who are ready to think deeper.
             </motion.p>
-            <motion.div className="mt-8 flex flex-wrap gap-3" variants={reveal}>
+            <motion.div className="mt-6 flex flex-wrap gap-3" variants={reveal}>
               <CtaButton href="#demo" pulse>Book Free Demo Class</CtaButton>
               <CtaButton
                 href={`https://wa.me/${contact.whatsapp}?text=Hello%20Sooriya%20Chess%20Academy%2C%20I%20want%20to%20book%20a%20free%20demo%20class%20for%20my%20child.`}
@@ -684,7 +685,7 @@ export default function SooriyaLandingPage() {
                 Chat on WhatsApp
               </CtaButton>
             </motion.div>
-            <motion.div className="mt-8 flex flex-wrap gap-3" variants={stagger}>
+            <motion.div className="mt-6 flex flex-wrap gap-3" variants={stagger}>
               {trustPills.map((pill) => (
                 <motion.span
                   key={pill}
@@ -700,7 +701,7 @@ export default function SooriyaLandingPage() {
           </motion.div>
 
           <motion.div
-            className="relative"
+            className="relative w-full"
             onMouseEnter={() => setScenarioAutoplay(false)}
             onMouseLeave={() => setScenarioAutoplay(true)}
             onFocusCapture={() => setScenarioAutoplay(false)}
@@ -723,6 +724,7 @@ export default function SooriyaLandingPage() {
                   onClick={() => {
                     setScenarioAutoplay(false);
                     setActiveScenario(index);
+                    setActiveSquare(item.squares[0]);
                   }}
                   whileHover={{ y: -2 }}
                   whileTap={{ scale: 0.96 }}
@@ -733,22 +735,20 @@ export default function SooriyaLandingPage() {
               ))}
             </div>
 
-            <motion.div className="rounded-[1.5rem] border border-white/10 bg-gradient-to-b from-white/[0.08] to-white/[0.03] p-4 shadow-[0_24px_70px_rgba(0,0,0,0.4)] backdrop-blur-2xl sm:p-5" layout>
+            <motion.div className="rounded-[1.25rem] border border-white/10 bg-gradient-to-b from-white/[0.08] to-white/[0.03] p-4 shadow-[0_24px_70px_rgba(0,0,0,0.4)] backdrop-blur-2xl sm:p-5 xl:p-6" layout>
               <div className="mb-5 grid gap-4 sm:grid-cols-[1fr_auto]">
-                <AnimatePresence mode="wait">
-                  <motion.div key={scenario.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={spring}>
-                    <p className="text-xs font-semibold uppercase tracking-[0.25em] text-amber-200">Live board lesson</p>
-                    <h3 className="mt-2 font-display text-3xl leading-tight text-white">{scenario.title}</h3>
-                  </motion.div>
-                </AnimatePresence>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.25em] text-amber-200">Live board lesson</p>
+                  <h3 className="mt-2 font-display text-3xl leading-tight text-white 2xl:text-4xl">{scenario.title}</h3>
+                </div>
                 <motion.span className="h-fit rounded-full bg-amber-300/15 px-4 py-2 text-sm font-semibold text-amber-100" layout>
                   {scenario.move}
                 </motion.span>
               </div>
 
-              <div className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
+              <div className="grid min-w-0 gap-5 2xl:grid-cols-[minmax(560px,1fr)_minmax(280px,0.46fr)]">
                 <motion.div
-                  className="rounded-[1.35rem] bg-[radial-gradient(circle_at_top_left,rgba(245,158,11,0.24),transparent_42%),radial-gradient(circle_at_bottom_right,rgba(37,99,235,0.2),transparent_38%),linear-gradient(135deg,rgba(255,255,255,0.07),rgba(255,255,255,0.02))] p-3 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08),0_26px_80px_rgba(0,0,0,0.36)]"
+                  className="min-w-0 rounded-[1.1rem] bg-[radial-gradient(circle_at_top_left,rgba(245,158,11,0.24),transparent_42%),radial-gradient(circle_at_bottom_right,rgba(37,99,235,0.2),transparent_38%),linear-gradient(135deg,rgba(255,255,255,0.07),rgba(255,255,255,0.02))] p-3 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08),0_26px_80px_rgba(0,0,0,0.36)] sm:p-4"
                   animate={reduceMotion ? undefined : { rotateX: parallax.y * -0.08, rotateY: parallax.x * 0.08 }}
                   transition={spring}
                 >
@@ -756,7 +756,7 @@ export default function SooriyaLandingPage() {
                     <div className="grid grid-cols-8">{files.map((file) => <span key={`top-${file}`}>{file}</span>)}</div>
                     <div className="grid grid-cols-[16px_1fr_16px] items-stretch gap-2 sm:grid-cols-[20px_1fr_20px]">
                       <div className="grid grid-rows-8">{ranks.map((rank) => <span key={`left-${rank}`}>{rank}</span>)}</div>
-                      <div className="grid aspect-square grid-cols-8 overflow-hidden rounded-[1.15rem] border border-white/15" role="img" aria-label="Interactive chess position preview">
+                      <div className="grid aspect-square grid-cols-8 overflow-hidden rounded-[1rem] border border-white/15" role="img" aria-label="Interactive chess position preview">
                         {ranks.flatMap((rank) =>
                           files.map((file) => {
                             const square = `${file}${rank}`;
@@ -766,7 +766,7 @@ export default function SooriyaLandingPage() {
                                 square={square}
                                 piece={scenario.board[square]}
                                 highlighted={scenario.squares.includes(square)}
-                                active={activeSquare === square}
+                                active={selectedSquare === square}
                                 onSelect={setActiveSquare}
                               />
                             );
@@ -779,19 +779,19 @@ export default function SooriyaLandingPage() {
                   </div>
                 </motion.div>
 
-                <div className="grid gap-3">
+                <div className="grid min-w-0 gap-3 sm:grid-cols-2 2xl:grid-cols-1">
                   <Magnetic>
-                    <div className="rounded-3xl border border-white/10 bg-white/[0.045] p-5">
+                    <div className="min-w-0 rounded-3xl border border-white/10 bg-white/[0.045] p-5">
                       <p className="text-xs font-semibold uppercase tracking-[0.24em] text-amber-200">Move explanation</p>
                       <AnimatePresence mode="wait">
-                        <motion.p key={`${scenario.id}-${activeSquare}`} className="mt-3 leading-7 text-stone-300" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}>
+                        <motion.p key={`${scenario.id}-${selectedSquare}`} className="mt-3 leading-7 text-stone-300" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}>
                           {activeSquareCopy}
                         </motion.p>
                       </AnimatePresence>
                     </div>
                   </Magnetic>
                   <Magnetic>
-                    <div className="rounded-3xl border border-white/10 bg-white/[0.045] p-5">
+                    <div className="min-w-0 rounded-3xl border border-white/10 bg-white/[0.045] p-5">
                       <p className="text-xs font-semibold uppercase tracking-[0.24em] text-amber-200">Board language</p>
                       <div className="mt-4 flex flex-wrap gap-2">
                         {scenario.squares.map((square) => (
@@ -1087,7 +1087,7 @@ export default function SooriyaLandingPage() {
         </motion.div>
       </PremiumSection>
 
-      <motion.footer id="contact" className="relative z-10 mx-auto flex max-w-7xl flex-col gap-5 rounded-[1.5rem] border border-white/10 bg-white/[0.035] p-6 backdrop-blur-2xl sm:flex-row sm:items-center sm:justify-between" variants={reveal} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+      <motion.footer id="contact" className="relative z-10 mx-auto flex w-full max-w-[1680px] flex-col gap-5 rounded-[1.25rem] border border-white/10 bg-white/[0.035] p-6 backdrop-blur-2xl sm:flex-row sm:items-center sm:justify-between" variants={reveal} initial="hidden" whileInView="visible" viewport={{ once: true }}>
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-amber-200">Sooriya Chess Academy</p>
           <p className="mt-2 text-sm text-stone-300">Chennai-based coaching with online access and tournament-focused growth.</p>
