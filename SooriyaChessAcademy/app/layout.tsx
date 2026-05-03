@@ -8,19 +8,21 @@ export const metadata: Metadata = {
     template: "%s | Sooriya Chess Academy",
   },
   description:
-    "Premium chess coaching in Chennai and online for kids, beginners, tournament players, and students ready to think five moves ahead. Book a free demo class.",
+    "Premium chess coaching in Chennai and online for kids, plus Sooriya Chess Academy's 1st International FIDE Rated Open Chess Tournament in June 2026.",
   keywords: [
     "Sooriya Chess Academy",
     "chess coaching Chennai",
     "kids chess classes",
     "online chess coaching",
     "tournament chess training",
+    "Sooriya Chess Academy international FIDE rated open chess tournament",
+    "Chengalpattu chess tournament 2026",
     "free chess demo class",
   ],
   openGraph: {
     title: "Sooriya Chess Academy",
     description:
-      "Structured chess coaching for young learners, serious competitors, and tournament-ready students.",
+      "Structured chess coaching for young learners, serious competitors, and the academy's June 2026 international FIDE-rated open tournament.",
     type: "website",
   },
 };

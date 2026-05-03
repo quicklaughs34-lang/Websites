@@ -133,6 +133,39 @@ const achievements = [
   "Runs with both contact points and Chennai visibility, supporting parent trust and local discovery.",
 ];
 
+const internationalTournament = {
+  title: "Sooriya Chess Academy's 1st International FIDE Rated Open Chess Tournament",
+  shortTitle: "1st International FIDE Rated Open",
+  dates: "June 3-7, 2026",
+  venue: "Prof. Dhanapalan College of Science & Management, Rajiv Gandhi Salai, Padur, Kelambakkam",
+  city: "Chengalpattu, Tamil Nadu",
+  prize: "₹5,00,001",
+  entryFee: "₹2,500",
+  format: "9-round Swiss",
+  rating: "FIDE rated classical",
+  timeControl: "90 minutes + 30 seconds increment from move 1",
+  eventId: "FIDE Event ID 465887",
+  deadline: "Entries close May 30, 2026, 5:00 PM",
+  contacts: "8807947108, 8870443779",
+  registration: "https://easypaychess.com/tmt.asp?i=2283",
+  chessResults: "https://s2.chess-results.com/tnr1375076.aspx?SNode=S0&lan=4",
+};
+
+const tournamentHighlights = [
+  { label: "Dates", value: internationalTournament.dates },
+  { label: "Prize fund", value: internationalTournament.prize },
+  { label: "Rounds", value: internationalTournament.format },
+  { label: "Entry fee", value: internationalTournament.entryFee },
+];
+
+const tournamentSchedule = [
+  ["Jun 3", "Inauguration, players meeting, Rounds 1-2"],
+  ["Jun 4", "Rounds 3-4"],
+  ["Jun 5", "Rounds 5-6"],
+  ["Jun 6", "Rounds 7-8"],
+  ["Jun 7", "Round 9 and prize distribution"],
+];
+
 const trainingFlow = [
   {
     week: "01",
@@ -643,13 +676,33 @@ export default function SooriyaLandingPage() {
 
       <PremiumSection className="p-4 sm:p-6 xl:p-8">
         <FloatingPieces parallax={parallax} reduceMotion={reduceMotion} />
+        <motion.a
+          href="#tournament"
+          className="relative z-20 mb-4 flex flex-col gap-3 overflow-hidden rounded-full border border-amber-200/25 bg-gradient-to-r from-amber-300/18 via-white/[0.06] to-blue-400/12 px-4 py-3 text-sm text-stone-100 shadow-[0_18px_60px_rgba(245,158,11,0.12)] backdrop-blur-2xl sm:flex-row sm:items-center sm:justify-between sm:px-5"
+          initial={{ opacity: 0, y: -12 }}
+          animate={{ opacity: 1, y: 0 }}
+          whileHover={{ y: -2, borderColor: "rgba(253,230,138,0.5)" }}
+          transition={spring}
+        >
+          <motion.span
+            className="pointer-events-none absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-transparent via-amber-100/18 to-transparent"
+            animate={reduceMotion ? undefined : { x: ["-120%", "360%"] }}
+            transition={{ duration: 3.8, repeat: Infinity, ease: "linear" }}
+          />
+          <span className="relative flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-amber-300 px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-stone-950">Live Notice</span>
+            <strong className="text-white">{internationalTournament.shortTitle}</strong>
+            <span className="text-stone-300">{internationalTournament.dates} · {internationalTournament.prize} prize fund · {internationalTournament.city}</span>
+          </span>
+          <span className="relative font-semibold text-amber-100">Register / details →</span>
+        </motion.a>
         <header className="relative z-10 flex flex-col gap-5 border-b border-white/10 px-2 pb-5 pt-1 lg:flex-row lg:items-center lg:justify-between">
           <motion.div className="min-w-0" initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={spring}>
             <p className="font-display text-3xl leading-none text-white sm:text-4xl lg:text-5xl">Sooriya Chess Academy</p>
             <p className="mt-2 text-sm uppercase tracking-[0.22em] text-amber-200">Chennai + online chess coaching for young competitors</p>
           </motion.div>
           <nav className="flex flex-wrap items-center gap-3 text-sm text-stone-300" aria-label="Primary navigation">
-            {["Programs", "Training Flow", "Stories", "Contact"].map((item) => (
+            {["Tournament", "Programs", "Training Flow", "Stories", "Contact"].map((item) => (
               <motion.a
                 key={item}
                 className="rounded-full px-3 py-2 transition-colors hover:bg-white/7 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-200"
@@ -678,6 +731,7 @@ export default function SooriyaLandingPage() {
             </motion.p>
             <motion.div className="mt-6 flex flex-wrap gap-3" variants={reveal}>
               <CtaButton href="#demo" pulse>Book Free Demo Class</CtaButton>
+              <CtaButton href="#tournament" kind="secondary">View Tournament</CtaButton>
               <CtaButton
                 href={`https://wa.me/${contact.whatsapp}?text=Hello%20Sooriya%20Chess%20Academy%2C%20I%20want%20to%20book%20a%20free%20demo%20class%20for%20my%20child.`}
                 kind="secondary"
@@ -836,6 +890,67 @@ export default function SooriyaLandingPage() {
               <span className="relative mt-2 block text-stone-300">{metric.label}</span>
             </motion.article>
           ))}
+        </motion.div>
+      </PremiumSection>
+
+      <PremiumSection id="tournament" className="grid gap-8 lg:grid-cols-[0.92fr_1.08fr]">
+        <div>
+          <SectionHeader
+            eyebrow="International Tournament"
+            title="Sooriya is hosting a five-day FIDE-rated classical event"
+            copy="Add the academy's organizer credibility directly into the site: a serious over-the-board tournament with FIDE rating, a classical time control, and a published multi-day schedule in Kelambakkam."
+          />
+          <motion.div className="mt-8 grid gap-3 sm:grid-cols-2" variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }}>
+            {tournamentHighlights.map((item) => (
+              <motion.article
+                key={item.label}
+                className="relative overflow-hidden rounded-3xl border border-amber-200/15 bg-amber-200/10 p-5 backdrop-blur-xl"
+                variants={reveal}
+                whileHover={{ y: -5, borderColor: "rgba(253,230,138,0.42)" }}
+                transition={spring}
+              >
+                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-amber-200">{item.label}</p>
+                <strong className="mt-3 block font-display text-3xl leading-tight text-white">{item.value}</strong>
+              </motion.article>
+            ))}
+          </motion.div>
+          <motion.div className="mt-6 flex flex-wrap gap-3" variants={reveal} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+            <CtaButton href={internationalTournament.registration}>Register Online</CtaButton>
+            <CtaButton href={internationalTournament.chessResults} kind="secondary">View Chess-Results</CtaButton>
+          </motion.div>
+        </div>
+
+        <motion.div className="relative overflow-hidden rounded-[1.25rem] border border-white/10 bg-gradient-to-b from-white/[0.08] to-white/[0.035] p-6 backdrop-blur-2xl" variants={reveal} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.25 }}>
+          <motion.span className="absolute -right-8 -top-10 font-display text-9xl text-amber-200/10" animate={reduceMotion ? undefined : { y: [-8, 10, -8], rotate: [-3, 4, -3] }} transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}>
+            ♛
+          </motion.span>
+          <p className="relative text-xs font-semibold uppercase tracking-[0.24em] text-amber-200">{internationalTournament.eventId}</p>
+          <h3 className="relative mt-4 font-display text-4xl leading-tight text-white">{internationalTournament.shortTitle}</h3>
+          <div className="relative mt-5 grid gap-3 text-stone-300">
+            <p><span className="font-semibold text-white">Venue:</span> {internationalTournament.venue}, {internationalTournament.city}</p>
+            <p><span className="font-semibold text-white">Format:</span> {internationalTournament.rating}, {internationalTournament.format}</p>
+            <p><span className="font-semibold text-white">Time control:</span> {internationalTournament.timeControl}</p>
+            <p><span className="font-semibold text-white">Deadline:</span> {internationalTournament.deadline}</p>
+            <p><span className="font-semibold text-white">Tournament contacts:</span> {internationalTournament.contacts}</p>
+          </div>
+          <div className="relative mt-6 rounded-3xl border border-white/10 bg-black/20 p-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-amber-200">Published schedule</p>
+            <motion.ul className="mt-4 grid gap-3" variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+              {tournamentSchedule.map(([date, detail]) => (
+                <motion.li key={date} className="grid gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-stone-200 sm:grid-cols-[82px_1fr]" variants={reveal}>
+                  <span className="font-semibold text-amber-100">{date}</span>
+                  <span>{detail}</span>
+                </motion.li>
+              ))}
+            </motion.ul>
+          </div>
+          <div className="relative mt-5 flex flex-wrap gap-2">
+            {["AICF ID for Indian players", "TNSCA ID for Tamil Nadu players", "Valid FIDE ID for foreign players", "Canteen + parking available"].map((item) => (
+              <span key={item} className="rounded-full border border-white/10 bg-white/[0.045] px-3 py-1.5 text-sm text-stone-200">
+                {item}
+              </span>
+            ))}
+          </div>
         </motion.div>
       </PremiumSection>
 
