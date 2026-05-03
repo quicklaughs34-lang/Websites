@@ -452,7 +452,7 @@ function PremiumSection({ children, className, id }: { children: ReactNode; clas
     <motion.section
       id={id}
       className={cx(
-        "relative z-10 mx-auto mb-6 w-full max-w-[1680px] overflow-hidden rounded-[1.25rem] border border-white/10 bg-white/[0.035] p-5 shadow-[0_24px_80px_rgba(0,0,0,0.42)] backdrop-blur-2xl sm:p-8",
+        "relative z-10 mx-auto mb-6 w-full max-w-[calc(100vw-1.5rem)] overflow-hidden rounded-[1.25rem] border border-white/10 bg-white/[0.035] p-4 shadow-[0_24px_80px_rgba(0,0,0,0.42)] backdrop-blur-2xl sm:max-w-[1680px] sm:p-8",
         "before:pointer-events-none before:absolute before:inset-x-8 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-amber-200/45 before:to-transparent",
         className,
       )}
@@ -665,7 +665,7 @@ export default function SooriyaLandingPage() {
   };
 
   return (
-    <main className="min-h-screen overflow-hidden bg-[#070604] px-3 py-4 text-stone-50 sm:px-5 xl:px-8" onMouseMove={handleMouseMove}>
+    <main className="min-h-screen max-w-full overflow-x-hidden bg-[#070604] px-3 py-4 text-stone-50 sm:px-5 xl:px-8" onMouseMove={handleMouseMove}>
       <AmbientBackground reduceMotion={reduceMotion} />
       <CursorGlow x={cursor.x} y={cursor.y} />
       <motion.div
@@ -678,7 +678,7 @@ export default function SooriyaLandingPage() {
         <FloatingPieces parallax={parallax} reduceMotion={reduceMotion} />
         <motion.a
           href="#tournament"
-          className="relative z-20 mb-4 flex flex-col gap-3 overflow-hidden rounded-full border border-amber-200/25 bg-gradient-to-r from-amber-300/18 via-white/[0.06] to-blue-400/12 px-4 py-3 text-sm text-stone-100 shadow-[0_18px_60px_rgba(245,158,11,0.12)] backdrop-blur-2xl sm:flex-row sm:items-center sm:justify-between sm:px-5"
+          className="relative z-20 mb-4 flex min-w-0 max-w-full flex-col gap-3 overflow-hidden rounded-2xl border border-amber-200/25 bg-gradient-to-r from-amber-300/18 via-white/[0.06] to-blue-400/12 px-4 py-3 text-sm text-stone-100 shadow-[0_18px_60px_rgba(245,158,11,0.12)] backdrop-blur-2xl sm:flex-row sm:items-center sm:justify-between sm:rounded-full sm:px-5"
           initial={{ opacity: 0, y: -12 }}
           animate={{ opacity: 1, y: 0 }}
           whileHover={{ y: -2, borderColor: "rgba(253,230,138,0.5)" }}
@@ -689,23 +689,23 @@ export default function SooriyaLandingPage() {
             animate={reduceMotion ? undefined : { x: ["-120%", "360%"] }}
             transition={{ duration: 3.8, repeat: Infinity, ease: "linear" }}
           />
-          <span className="relative flex flex-wrap items-center gap-2">
-            <span className="rounded-full bg-amber-300 px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-stone-950">Live Notice</span>
-            <strong className="text-white">{internationalTournament.shortTitle}</strong>
-            <span className="text-stone-300">{internationalTournament.dates} · {internationalTournament.prize} prize fund · {internationalTournament.city}</span>
+          <span className="relative flex min-w-0 flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
+            <span className="w-fit rounded-full bg-amber-300 px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-stone-950">Live Notice</span>
+            <strong className="break-words text-white">{internationalTournament.shortTitle}</strong>
+            <span className="max-w-full break-words text-stone-300">{internationalTournament.dates} · {internationalTournament.prize} prize fund · Chengalpattu</span>
           </span>
           <span className="relative font-semibold text-amber-100">Register / details →</span>
         </motion.a>
-        <header className="relative z-10 flex flex-col gap-5 border-b border-white/10 px-2 pb-5 pt-1 lg:flex-row lg:items-center lg:justify-between">
+        <header className="relative z-10 flex min-w-0 flex-col gap-5 border-b border-white/10 px-2 pb-5 pt-1 lg:flex-row lg:items-center lg:justify-between">
           <motion.div className="min-w-0" initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={spring}>
             <p className="font-display text-3xl leading-none text-white sm:text-4xl lg:text-5xl">Sooriya Chess Academy</p>
-            <p className="mt-2 text-sm uppercase tracking-[0.22em] text-amber-200">Chennai + online chess coaching for young competitors</p>
+            <p className="mt-2 max-w-full text-sm uppercase tracking-[0.14em] text-amber-200 sm:tracking-[0.22em]">Chennai + online chess coaching for young competitors</p>
           </motion.div>
-          <nav className="flex flex-wrap items-center gap-3 text-sm text-stone-300" aria-label="Primary navigation">
+          <nav className="grid min-w-0 grid-cols-2 gap-3 text-sm text-stone-300 sm:flex sm:flex-wrap sm:items-center" aria-label="Primary navigation">
             {["Tournament", "Programs", "Training Flow", "Stories", "Contact"].map((item) => (
               <motion.a
                 key={item}
-                className="rounded-full px-3 py-2 transition-colors hover:bg-white/7 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-200"
+                className="rounded-full px-3 py-2 text-center transition-colors hover:bg-white/7 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-200"
                 href={`#${item === "Training Flow" ? "training" : item.toLowerCase()}`}
                 whileHover={{ y: -1 }}
                 whileTap={{ scale: 0.96 }}
@@ -718,15 +718,15 @@ export default function SooriyaLandingPage() {
           </nav>
         </header>
 
-        <div className="relative z-10 grid gap-8 pt-8 lg:grid-cols-[0.82fr_1.18fr] lg:items-start lg:pt-8 2xl:grid-cols-[0.78fr_1.22fr]">
-          <motion.div className="self-center" variants={stagger} initial="hidden" animate="visible">
-            <motion.p className="text-xs font-semibold uppercase tracking-[0.28em] text-amber-200" variants={reveal}>
+        <div className="relative z-10 grid min-w-0 gap-8 pt-8 lg:grid-cols-[0.82fr_1.18fr] lg:items-start lg:pt-8 2xl:grid-cols-[0.78fr_1.22fr]">
+          <motion.div className="min-w-0 self-center" variants={stagger} initial="hidden" animate="visible">
+            <motion.p className="max-w-full break-words text-xs font-semibold uppercase tracking-[0.1em] text-amber-200 sm:tracking-[0.28em]" variants={reveal}>
               Live lessons. Tournament thinking. Parent-trusted progress.
             </motion.p>
             <motion.h1 className="mt-5 max-w-5xl font-display text-5xl leading-[0.9] tracking-tight text-white sm:text-6xl xl:text-7xl 2xl:text-8xl" variants={reveal}>
               Chess coaching that feels like a live masterclass.
             </motion.h1>
-            <motion.p className="mt-5 max-w-2xl text-base leading-7 text-stone-300 xl:text-lg xl:leading-8" variants={reveal}>
+            <motion.p className="mt-5 max-w-2xl break-words text-base leading-7 text-stone-300 xl:text-lg xl:leading-8" variants={reveal}>
               Sooriya Chess Academy turns each class into a guided board experience: animated ideas, clear plans, Chennai-based mentoring, online access, and tournament-aware training for children who are ready to think deeper.
             </motion.p>
             <motion.div className="mt-6 flex flex-wrap gap-3" variants={reveal}>
@@ -743,7 +743,7 @@ export default function SooriyaLandingPage() {
               {trustPills.map((pill) => (
                 <motion.span
                   key={pill}
-                  className="rounded-full border border-white/10 bg-white/[0.045] px-4 py-2 text-sm text-stone-200 backdrop-blur-xl"
+                  className="max-w-full rounded-full border border-white/10 bg-white/[0.045] px-4 py-2 text-sm text-stone-200 backdrop-blur-xl"
                   variants={reveal}
                   whileHover={{ y: -2, borderColor: "rgba(253,230,138,0.45)" }}
                   transition={spring}
@@ -755,7 +755,7 @@ export default function SooriyaLandingPage() {
           </motion.div>
 
           <motion.div
-            className="relative w-full"
+            className="relative min-w-0 w-full"
             onMouseEnter={() => setScenarioAutoplay(false)}
             onMouseLeave={() => setScenarioAutoplay(true)}
             onFocusCapture={() => setScenarioAutoplay(false)}
@@ -764,7 +764,7 @@ export default function SooriyaLandingPage() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ ...spring, delay: 0.16 }}
           >
-            <div className="mb-3 flex flex-wrap gap-2">
+            <div className="mb-3 flex min-w-0 flex-wrap gap-2">
               {scenarios.map((item, index) => (
                 <motion.button
                   key={item.id}
@@ -789,11 +789,11 @@ export default function SooriyaLandingPage() {
               ))}
             </div>
 
-            <motion.div className="rounded-[1.25rem] border border-white/10 bg-gradient-to-b from-white/[0.08] to-white/[0.03] p-4 shadow-[0_24px_70px_rgba(0,0,0,0.4)] backdrop-blur-2xl sm:p-5 xl:p-6" layout>
-              <div className="mb-5 grid gap-4 sm:grid-cols-[1fr_auto]">
+            <motion.div className="min-w-0 rounded-[1.25rem] border border-white/10 bg-gradient-to-b from-white/[0.08] to-white/[0.03] p-4 shadow-[0_24px_70px_rgba(0,0,0,0.4)] backdrop-blur-2xl sm:p-5 xl:p-6" layout>
+              <div className="mb-5 grid min-w-0 gap-4 sm:grid-cols-[1fr_auto]">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.25em] text-amber-200">Live board lesson</p>
-                  <h3 className="mt-2 font-display text-3xl leading-tight text-white 2xl:text-4xl">{scenario.title}</h3>
+                  <h3 className="mt-2 font-display text-2xl leading-tight text-white sm:text-3xl 2xl:text-4xl">{scenario.title}</h3>
                 </div>
                 <motion.span className="h-fit rounded-full bg-amber-300/15 px-4 py-2 text-sm font-semibold text-amber-100" layout>
                   {scenario.move}
