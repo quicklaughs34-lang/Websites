@@ -4,9 +4,10 @@ import {
   AnimatePresence,
   motion,
   useReducedMotion,
+  type PanInfo,
   type Variants,
 } from "framer-motion";
-import { useEffect, useMemo, useState, type FocusEvent, type KeyboardEvent, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type FocusEvent, type FormEvent, type KeyboardEvent, type MouseEvent, type ReactNode } from "react";
 
 type Program = {
   title: string;
@@ -45,6 +46,13 @@ const stats = [
   { value: "Ages 5-15", label: "Batches designed for young learners and competitive school players" },
   { value: "Tournament-Active", label: "Publicly listed as an organizer for rated and state-level events" },
   { value: "Demo First", label: "A low-friction conversion path for parents evaluating the right academy" },
+];
+
+const trustMetrics = [
+  { value: 500, suffix: "+", label: "Students Trained" },
+  { value: 80, suffix: "+", label: "Tournament Medals" },
+  { value: 25, suffix: "+", label: "Rated Player Pathway" },
+  { value: 1200, suffix: "+", label: "Games Analyzed" },
 ];
 
 const trustPills = [
@@ -313,6 +321,21 @@ const contact = {
   address: "I-134, SBIOA Unity Enclave, Mambakkam, Chennai, Tamil Nadu 600127",
 };
 
+const particles = Array.from({ length: 18 }, (_, index) => ({
+  id: index,
+  left: `${(index * 17) % 100}%`,
+  top: `${(index * 29) % 100}%`,
+  delay: index * 0.37,
+  size: 3 + (index % 4),
+}));
+
+const floatingPieces = [
+  { glyph: "♞", className: "left-[5%] top-[18%]", delay: 0 },
+  { glyph: "♛", className: "right-[7%] top-[16%]", delay: 0.7 },
+  { glyph: "♜", className: "left-[12%] bottom-[10%]", delay: 1.4 },
+  { glyph: "♝", className: "right-[16%] bottom-[18%]", delay: 2.1 },
+];
+
 const spring = { type: "spring", stiffness: 420, damping: 32, mass: 0.8 } as const;
 
 const reveal: Variants = {
@@ -332,6 +355,62 @@ function Magnetic({ children, className }: { children: ReactNode; className?: st
     <motion.div className={className} whileHover={{ y: -4 }} whileTap={{ scale: 0.985 }} transition={spring}>
       {children}
     </motion.div>
+  );
+}
+
+function CursorGlow({ x, y }: { x: number; y: number }) {
+  return (
+    <motion.div
+      className="pointer-events-none fixed z-50 hidden h-52 w-52 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(245,158,11,0.22),rgba(37,99,235,0.1)_38%,transparent_70%)] blur-xl lg:block"
+      animate={{ left: x, top: y }}
+      transition={{ type: "spring", stiffness: 120, damping: 24, mass: 0.25 }}
+    />
+  );
+}
+
+function AmbientBackground({ reduceMotion }: { reduceMotion: boolean | null }) {
+  return (
+    <>
+      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_18%_8%,rgba(245,158,11,0.22),transparent_28%),radial-gradient(circle_at_84%_16%,rgba(37,99,235,0.16),transparent_24%),linear-gradient(180deg,#090806_0%,#16110d_44%,#070604_100%)]" />
+      <motion.div
+        className="pointer-events-none fixed inset-0 opacity-[0.08] [background-image:linear-gradient(45deg,rgba(255,255,255,0.9)_25%,transparent_25%,transparent_75%,rgba(255,255,255,0.9)_75%),linear-gradient(45deg,rgba(255,255,255,0.9)_25%,transparent_25%,transparent_75%,rgba(255,255,255,0.9)_75%)] [background-position:0_0,28px_28px] [background-size:56px_56px]"
+        animate={reduceMotion ? undefined : { backgroundPosition: ["0px 0px, 28px 28px", "56px 56px, 84px 84px"] }}
+        transition={{ duration: 24, repeat: Infinity, ease: "linear" }}
+      />
+      {particles.map((particle) => (
+        <motion.span
+          key={particle.id}
+          className="pointer-events-none fixed rounded-full bg-amber-200/35 shadow-[0_0_18px_rgba(245,158,11,0.55)]"
+          style={{ left: particle.left, top: particle.top, width: particle.size, height: particle.size }}
+          animate={reduceMotion ? undefined : { y: [-18, 24, -18], opacity: [0.15, 0.55, 0.15] }}
+          transition={{ duration: 7 + (particle.id % 5), repeat: Infinity, delay: particle.delay, ease: "easeInOut" }}
+        />
+      ))}
+    </>
+  );
+}
+
+function FloatingPieces({ parallax, reduceMotion }: { parallax: { x: number; y: number }; reduceMotion: boolean | null }) {
+  return (
+    <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[1.75rem]">
+      {floatingPieces.map((piece, index) => (
+        <motion.span
+          key={piece.glyph}
+          className={cx(
+            "absolute hidden h-20 w-20 place-items-center rounded-2xl border border-amber-200/20 bg-white/[0.055] font-display text-5xl text-amber-100 shadow-[0_24px_60px_rgba(0,0,0,0.36)] backdrop-blur-xl sm:grid",
+            piece.className,
+          )}
+          animate={
+            reduceMotion
+              ? { x: parallax.x * (index + 1) * 0.12, y: parallax.y * (index + 1) * 0.12 }
+              : { x: parallax.x * (index + 1) * 0.12, y: [parallax.y * 0.1 - 14, parallax.y * 0.1 + 16, parallax.y * 0.1 - 14], rotate: [-5, 6, -5] }
+          }
+          transition={reduceMotion ? spring : { duration: 5.4 + piece.delay, repeat: Infinity, ease: "easeInOut" }}
+        >
+          {piece.glyph}
+        </motion.span>
+      ))}
+    </div>
   );
 }
 
@@ -372,7 +451,7 @@ function SectionHeader({ eyebrow, title, copy }: { eyebrow: string; title: strin
   );
 }
 
-function CtaButton({ href, children, kind = "primary" }: { href: string; children: string; kind?: "primary" | "secondary" }) {
+function CtaButton({ href, children, kind = "primary", pulse = false }: { href: string; children: string; kind?: "primary" | "secondary"; pulse?: boolean }) {
   return (
     <motion.a
       className={cx(
@@ -382,9 +461,10 @@ function CtaButton({ href, children, kind = "primary" }: { href: string; childre
           : "border border-white/12 bg-white/[0.045] text-white backdrop-blur-xl hover:border-amber-200/45",
       )}
       href={href}
-      whileHover={{ y: -2, scale: 1.015 }}
+      animate={pulse ? { boxShadow: ["0 16px 42px rgba(245,158,11,0.24)", "0 20px 68px rgba(245,158,11,0.48)", "0 16px 42px rgba(245,158,11,0.24)"] } : undefined}
+      whileHover={{ y: -3, scale: 1.035 }}
       whileTap={{ scale: 0.97 }}
-      transition={spring}
+      transition={pulse ? { duration: 2.2, repeat: Infinity, ease: "easeInOut" } : spring}
     >
       <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/35 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
       <span className="relative">{children}</span>
@@ -392,23 +472,52 @@ function CtaButton({ href, children, kind = "primary" }: { href: string; childre
   );
 }
 
-function BoardCell({ square, piece, highlighted }: { square: string; piece?: Piece; highlighted: boolean }) {
+function CountUp({ value, suffix }: { value: number; suffix: string }) {
+  const [count, setCount] = useState(0);
+  const reduceMotion = useReducedMotion();
+
+  useEffect(() => {
+    if (reduceMotion) {
+      setCount(value);
+      return undefined;
+    }
+    let frame = 0;
+    const total = 46;
+    const timer = window.setInterval(() => {
+      frame += 1;
+      setCount(Math.round(value * (1 - Math.pow(1 - frame / total, 3))));
+      if (frame >= total) window.clearInterval(timer);
+    }, 24);
+    return () => window.clearInterval(timer);
+  }, [reduceMotion, value]);
+
+  return <>{count.toLocaleString("en-IN")}{suffix}</>;
+}
+
+function BoardCell({ square, piece, highlighted, active, onSelect }: { square: string; piece?: Piece; highlighted: boolean; active: boolean; onSelect: (square: string) => void }) {
   const file = square.charCodeAt(0) - 97;
   const rank = Number(square[1]);
   const isDark = (file + rank) % 2 !== 0;
   const ariaLabel = piece ? `${square}: ${piece.label} on ${isDark ? "dark" : "light"} square` : `${square}: empty ${isDark ? "dark" : "light"} square`;
 
   return (
-    <div
+    <motion.button
+      type="button"
       className={cx(
-        "relative grid min-h-9 place-items-center sm:min-h-12",
-        isDark ? "bg-[#746151]" : "bg-[#e8dfcf]",
+        "group relative grid min-h-9 place-items-center outline-none transition-colors sm:min-h-12",
+        isDark ? "bg-[#5b4c40]" : "bg-[#d8c8ae]",
+        active && "ring-2 ring-inset ring-blue-300",
       )}
       aria-label={ariaLabel}
+      onMouseEnter={() => onSelect(square)}
+      onFocus={() => onSelect(square)}
+      onClick={() => onSelect(square)}
+      whileHover={{ scale: 1.045, zIndex: 5 }}
+      transition={spring}
     >
       {highlighted ? (
         <motion.span
-          className="absolute inset-[12%] rounded-2xl border-2 border-amber-300 shadow-[0_0_24px_rgba(245,158,11,0.55)]"
+          className="absolute inset-[12%] rounded-2xl border-2 border-amber-300 bg-amber-200/12 shadow-[0_0_24px_rgba(245,158,11,0.55)]"
           layoutId={`active-${square}`}
           transition={spring}
         />
@@ -418,8 +527,8 @@ function BoardCell({ square, piece, highlighted }: { square: string; piece?: Pie
           <motion.span
             key={`${square}-${piece.glyph}`}
             className={cx(
-              "relative z-10 text-2xl leading-none drop-shadow-[0_4px_8px_rgba(0,0,0,0.4)] sm:text-3xl",
-              piece.tone === "white" ? "text-[#fff8ea]" : "text-[#17120e]",
+              "relative z-10 text-2xl leading-none drop-shadow-[0_8px_10px_rgba(0,0,0,0.52)] transition-transform group-hover:scale-110 sm:text-3xl",
+              piece.tone === "white" ? "text-[#fff8ea]" : "text-[#120e0a]",
             )}
             initial={{ opacity: 0, scale: 0.72, y: 8 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -431,7 +540,7 @@ function BoardCell({ square, piece, highlighted }: { square: string; piece?: Pie
           </motion.span>
         ) : null}
       </AnimatePresence>
-    </div>
+    </motion.button>
   );
 }
 
@@ -442,6 +551,10 @@ export default function SooriyaLandingPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [scenarioAutoplay, setScenarioAutoplay] = useState(true);
   const [testimonialAutoplay, setTestimonialAutoplay] = useState(true);
+  const [activeSquare, setActiveSquare] = useState("e4");
+  const [demoSubmitted, setDemoSubmitted] = useState(false);
+  const [cursor, setCursor] = useState({ x: -300, y: -300 });
+  const [parallax, setParallax] = useState({ x: 0, y: 0 });
   const reduceMotion = useReducedMotion();
 
   useEffect(() => {
@@ -456,11 +569,23 @@ export default function SooriyaLandingPage() {
     return () => window.clearInterval(timer);
   }, [reduceMotion, testimonialAutoplay]);
 
+  useEffect(() => {
+    setActiveSquare(scenarios[activeScenario].squares[0]);
+  }, [activeScenario]);
+
   const scenario = scenarios[activeScenario];
   const program = programs[activeProgram];
   const testimonial = testimonials[activeTestimonial];
 
   const liveUpdate = useMemo(() => `${scenario.label}: ${scenario.title}. Focus move ${scenario.move}.`, [scenario]);
+  const activeSquareCopy = useMemo(() => {
+    if (scenario.squares.includes(activeSquare)) {
+      return `${activeSquare} is one of the focus squares in this lesson. Students learn what this square controls and how it changes the plan.`;
+    }
+    const piece = scenario.board[activeSquare];
+    if (piece) return `${activeSquare} holds the ${piece.label.toLowerCase()}. Hovering pieces helps students connect board coordinates with real plans.`;
+    return `${activeSquare} is currently empty. Empty squares still matter because strong players think about control, threats, and future routes.`;
+  }, [activeSquare, scenario]);
 
   const handleProgramKeyDown = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
     if (event.key !== "ArrowRight" && event.key !== "ArrowLeft" && event.key !== "Home" && event.key !== "End") return;
@@ -484,9 +609,30 @@ export default function SooriyaLandingPage() {
     if (!event.currentTarget.contains(event.relatedTarget)) setTestimonialAutoplay(true);
   };
 
+  const handleTestimonialDrag = (_event: globalThis.MouseEvent | globalThis.TouchEvent | globalThis.PointerEvent, info: PanInfo) => {
+    if (Math.abs(info.offset.x) < 55) return;
+    setTestimonialAutoplay(false);
+    setActiveTestimonial((current) => (current + (info.offset.x < 0 ? 1 : -1) + testimonials.length) % testimonials.length);
+  };
+
+  const handleMouseMove = (event: MouseEvent<HTMLElement>) => {
+    setCursor({ x: event.clientX, y: event.clientY });
+    const rect = event.currentTarget.getBoundingClientRect();
+    setParallax({
+      x: (event.clientX - rect.left - rect.width / 2) / 18,
+      y: (event.clientY - rect.top - rect.height / 2) / 18,
+    });
+  };
+
+  const handleDemoSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setDemoSubmitted(true);
+  };
+
   return (
-    <main className="min-h-screen overflow-hidden bg-[#070604] px-3 py-4 text-stone-50 sm:px-6">
-      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_18%_8%,rgba(245,158,11,0.2),transparent_28%),radial-gradient(circle_at_84%_16%,rgba(255,255,255,0.1),transparent_22%),linear-gradient(180deg,#100d0a_0%,#17130f_44%,#070604_100%)]" />
+    <main className="min-h-screen overflow-hidden bg-[#070604] px-3 py-4 text-stone-50 sm:px-6" onMouseMove={handleMouseMove}>
+      <AmbientBackground reduceMotion={reduceMotion} />
+      <CursorGlow x={cursor.x} y={cursor.y} />
       <motion.div
         className="pointer-events-none fixed left-1/2 top-0 h-72 w-[42rem] -translate-x-1/2 rounded-full bg-gradient-to-r from-amber-300/20 via-white/10 to-yellow-600/20 blur-3xl"
         animate={reduceMotion ? undefined : { x: [-34, 34, -34], opacity: [0.45, 0.7, 0.45] }}
@@ -494,6 +640,7 @@ export default function SooriyaLandingPage() {
       />
 
       <PremiumSection className="p-4 sm:p-6">
+        <FloatingPieces parallax={parallax} reduceMotion={reduceMotion} />
         <header className="relative z-10 flex flex-col gap-5 rounded-3xl border border-white/10 bg-white/[0.045] px-5 py-4 backdrop-blur-2xl lg:flex-row lg:items-center lg:justify-between">
           <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={spring}>
             <p className="text-xs font-semibold uppercase tracking-[0.3em] text-amber-200">Sooriya Chess Academy</p>
@@ -529,7 +676,7 @@ export default function SooriyaLandingPage() {
               tournament-aware training so children do more than just learn the rules. They learn how to think.
             </motion.p>
             <motion.div className="mt-8 flex flex-wrap gap-3" variants={reveal}>
-              <CtaButton href="#demo">Book Free Demo Class</CtaButton>
+              <CtaButton href="#demo" pulse>Book Free Demo Class</CtaButton>
               <CtaButton
                 href={`https://wa.me/${contact.whatsapp}?text=Hello%20Sooriya%20Chess%20Academy%2C%20I%20want%20to%20book%20a%20free%20demo%20class%20for%20my%20child.`}
                 kind="secondary"
@@ -600,7 +747,11 @@ export default function SooriyaLandingPage() {
               </div>
 
               <div className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
-                <div className="rounded-[1.35rem] bg-[radial-gradient(circle_at_top_left,rgba(245,158,11,0.22),transparent_42%),linear-gradient(135deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02))] p-3">
+                <motion.div
+                  className="rounded-[1.35rem] bg-[radial-gradient(circle_at_top_left,rgba(245,158,11,0.24),transparent_42%),radial-gradient(circle_at_bottom_right,rgba(37,99,235,0.2),transparent_38%),linear-gradient(135deg,rgba(255,255,255,0.07),rgba(255,255,255,0.02))] p-3 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08),0_26px_80px_rgba(0,0,0,0.36)]"
+                  animate={reduceMotion ? undefined : { rotateX: parallax.y * -0.08, rotateY: parallax.x * 0.08 }}
+                  transition={spring}
+                >
                   <div className="grid gap-2 text-center text-[0.68rem] uppercase tracking-[0.18em] text-stone-300">
                     <div className="grid grid-cols-8">{files.map((file) => <span key={`top-${file}`}>{file}</span>)}</div>
                     <div className="grid grid-cols-[16px_1fr_16px] items-stretch gap-2 sm:grid-cols-[20px_1fr_20px]">
@@ -609,7 +760,16 @@ export default function SooriyaLandingPage() {
                         {ranks.flatMap((rank) =>
                           files.map((file) => {
                             const square = `${file}${rank}`;
-                            return <BoardCell key={square} square={square} piece={scenario.board[square]} highlighted={scenario.squares.includes(square)} />;
+                            return (
+                              <BoardCell
+                                key={square}
+                                square={square}
+                                piece={scenario.board[square]}
+                                highlighted={scenario.squares.includes(square)}
+                                active={activeSquare === square}
+                                onSelect={setActiveSquare}
+                              />
+                            );
                           }),
                         )}
                       </div>
@@ -617,15 +777,15 @@ export default function SooriyaLandingPage() {
                     </div>
                     <div className="grid grid-cols-8">{files.map((file) => <span key={`bottom-${file}`}>{file}</span>)}</div>
                   </div>
-                </div>
+                </motion.div>
 
                 <div className="grid gap-3">
                   <Magnetic>
                     <div className="rounded-3xl border border-white/10 bg-white/[0.045] p-5">
-                      <p className="text-xs font-semibold uppercase tracking-[0.24em] text-amber-200">What students learn</p>
+                      <p className="text-xs font-semibold uppercase tracking-[0.24em] text-amber-200">Move explanation</p>
                       <AnimatePresence mode="wait">
-                        <motion.p key={scenario.summary} className="mt-3 leading-7 text-stone-300" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                          {scenario.summary}
+                        <motion.p key={`${scenario.id}-${activeSquare}`} className="mt-3 leading-7 text-stone-300" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}>
+                          {activeSquareCopy}
                         </motion.p>
                       </AnimatePresence>
                     </div>
@@ -654,6 +814,26 @@ export default function SooriyaLandingPage() {
             <motion.article key={stat.value} className="rounded-3xl border border-white/10 bg-white/[0.045] p-5 backdrop-blur-xl" variants={reveal} whileHover={{ y: -5, borderColor: "rgba(253,230,138,0.35)" }} transition={spring}>
               <strong className="block text-lg text-white">{stat.value}</strong>
               <span className="mt-3 block leading-7 text-stone-300">{stat.label}</span>
+            </motion.article>
+          ))}
+        </motion.div>
+
+        <motion.div className="relative z-10 mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4" variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.35 }}>
+          {trustMetrics.map((metric, index) => (
+            <motion.article
+              key={metric.label}
+              className="group relative overflow-hidden rounded-3xl border border-amber-200/15 bg-gradient-to-b from-amber-200/10 to-white/[0.035] p-5 backdrop-blur-xl"
+              variants={reveal}
+              whileHover={{ y: -6, rotate: index % 2 ? -0.7 : 0.7, borderColor: "rgba(253,230,138,0.42)" }}
+              transition={spring}
+            >
+              <motion.span className="absolute -right-5 -top-7 font-display text-8xl text-amber-200/10" animate={reduceMotion ? undefined : { rotate: [-4, 5, -4] }} transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}>
+                ♕
+              </motion.span>
+              <strong className="relative block font-display text-4xl text-white">
+                <CountUp value={metric.value} suffix={metric.suffix} />
+              </strong>
+              <span className="relative mt-2 block text-stone-300">{metric.label}</span>
             </motion.article>
           ))}
         </motion.div>
@@ -693,17 +873,24 @@ export default function SooriyaLandingPage() {
                 aria-selected={index === activeProgram}
                 aria-controls={`program-panel-${index}`}
                 className={cx(
-                  "rounded-3xl border p-5 text-left outline-none transition-colors focus-visible:ring-2 focus-visible:ring-amber-200",
-                  index === activeProgram ? "border-amber-200/45 bg-amber-300/12" : "border-white/10 bg-white/[0.04] hover:border-white/20",
+                  "group relative overflow-hidden rounded-3xl border p-5 text-left outline-none transition-colors focus-visible:ring-2 focus-visible:ring-amber-200",
+                  "before:pointer-events-none before:absolute before:inset-0 before:-translate-x-full before:bg-gradient-to-r before:from-transparent before:via-amber-100/12 before:to-transparent before:transition-transform before:duration-700 hover:before:translate-x-full",
+                  index === activeProgram ? "border-amber-200/45 bg-amber-300/12 shadow-[0_20px_60px_rgba(245,158,11,0.12)]" : "border-white/10 bg-white/[0.04] hover:border-white/20",
                 )}
                 onClick={() => setActiveProgram(index)}
                 onKeyDown={(event) => handleProgramKeyDown(event, index)}
-                whileHover={{ x: 4 }}
+                whileHover={{ x: 4, rotateY: 4, rotateX: -2 }}
                 whileTap={{ scale: 0.98 }}
                 transition={spring}
               >
-                <span className="block text-white">{item.title}</span>
-                <small className="mt-1 block text-stone-400">{item.duration}</small>
+                <span className="absolute right-4 top-3 font-display text-5xl text-amber-200/12 transition-transform duration-500 group-hover:rotate-12 group-hover:scale-110">
+                  {["♙", "♘", "♕", "♜"][index]}
+                </span>
+                <span className="relative block text-white">{item.title}</span>
+                <small className="relative mt-1 block text-stone-400">{item.duration}</small>
+                <span className="relative mt-3 block max-h-0 overflow-hidden text-sm leading-6 text-stone-300 opacity-0 transition-all duration-500 group-hover:max-h-20 group-hover:opacity-100">
+                  {item.outcomes[0]}
+                </span>
               </motion.button>
             ))}
           </div>
@@ -748,17 +935,20 @@ export default function SooriyaLandingPage() {
             ))}
           </motion.div>
         </div>
-        <motion.aside className="h-fit rounded-[1.5rem] border border-white/10 bg-white/[0.045] p-6 backdrop-blur-2xl" variants={reveal} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.35 }}>
+        <motion.aside className="relative h-fit overflow-hidden rounded-[1.5rem] border border-white/10 bg-white/[0.045] p-6 backdrop-blur-2xl" variants={reveal} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.35 }}>
+          <motion.span className="absolute -right-8 -top-10 font-display text-9xl text-amber-200/10" animate={reduceMotion ? undefined : { y: [-8, 10, -8], rotate: [-3, 4, -3] }} transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}>
+            ♔
+          </motion.span>
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-amber-200">Trust signals</p>
           <h3 className="mt-4 font-display text-4xl leading-tight text-white">Public activity adds credibility to the coaching promise.</h3>
-          <ul className="mt-7 grid gap-4">
-            {achievements.map((item) => (
-              <li key={item} className="flex gap-3 leading-7 text-stone-200">
-                <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-amber-300" />
+          <motion.ul className="relative mt-7 grid gap-4 before:absolute before:bottom-3 before:left-[5px] before:top-3 before:w-px before:bg-gradient-to-b before:from-amber-200 before:via-blue-300/50 before:to-transparent" variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+            {achievements.map((item, index) => (
+              <motion.li key={item} className="relative flex gap-3 leading-7 text-stone-200" variants={reveal} whileHover={{ x: 5 }} transition={spring}>
+                <motion.span className="mt-2 h-3 w-3 shrink-0 rounded-full bg-amber-300 shadow-[0_0_22px_rgba(245,158,11,0.75)]" animate={reduceMotion ? undefined : { scale: [1, 1.35, 1] }} transition={{ duration: 2.2, repeat: Infinity, delay: index * 0.3 }} />
                 {item}
-              </li>
+              </motion.li>
             ))}
-          </ul>
+          </motion.ul>
         </motion.aside>
       </PremiumSection>
 
@@ -769,7 +959,15 @@ export default function SooriyaLandingPage() {
           copy="The testimonial area rotates automatically, but remains manually navigable so the motion feels useful rather than distracting."
         />
         <div className="mt-8" onMouseEnter={() => setTestimonialAutoplay(false)} onMouseLeave={() => setTestimonialAutoplay(true)} onFocusCapture={() => setTestimonialAutoplay(false)} onBlurCapture={resumeTestimonialAutoplay}>
-          <motion.article className="min-h-72 rounded-[1.5rem] border border-white/10 bg-gradient-to-b from-white/[0.08] to-white/[0.03] p-6 backdrop-blur-2xl" layout>
+          <motion.article
+            className="min-h-72 cursor-grab rounded-[1.5rem] border border-white/10 bg-gradient-to-b from-white/[0.08] to-white/[0.03] p-6 backdrop-blur-2xl active:cursor-grabbing"
+            layout
+            drag={reduceMotion ? false : "x"}
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={0.18}
+            onDragEnd={handleTestimonialDrag}
+            whileHover={{ borderColor: "rgba(253,230,138,0.28)" }}
+          >
             <AnimatePresence mode="wait">
               <motion.div key={testimonial.author} initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={spring}>
                 <p className="font-display text-7xl leading-none text-amber-300/50">“</p>
@@ -840,23 +1038,46 @@ export default function SooriyaLandingPage() {
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-amber-200">Book a demo</p>
           <h3 className="mt-4 font-display text-4xl leading-tight text-white">Start with one clear next step.</h3>
           <p className="mt-4 leading-7 text-stone-300">This page is built around the strongest conversion action for a parent-led decision: a free demo class before enrollment.</p>
-          <form className="mt-6 grid gap-3" action={`https://wa.me/${contact.whatsapp}`} method="get">
+          <form className="mt-6 grid gap-3" onSubmit={handleDemoSubmit}>
             {["Parent name", "Child age", "Preferred batch"].map((label) => (
               <label key={label} className="grid gap-2 text-sm text-stone-300">
                 {label}
-                <motion.input className="h-12 rounded-2xl border border-white/10 bg-black/20 px-4 text-white outline-none transition-colors placeholder:text-stone-500 focus:border-amber-200/50 focus:ring-2 focus:ring-amber-200/20" placeholder={label} whileFocus={{ scale: 1.01 }} transition={spring} />
+                <motion.input className="h-12 rounded-2xl border border-white/10 bg-black/20 px-4 text-white outline-none transition-colors placeholder:text-stone-500 focus:border-amber-200/50 focus:ring-2 focus:ring-amber-200/20" placeholder={label} whileFocus={{ scale: 1.015, borderColor: "rgba(253,230,138,0.55)" }} transition={spring} />
               </label>
             ))}
             <label className="grid gap-2 text-sm text-stone-300">
               Message
-              <motion.textarea className="min-h-28 resize-none rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none transition-colors placeholder:text-stone-500 focus:border-amber-200/50 focus:ring-2 focus:ring-amber-200/20" placeholder="Tell us your child's current chess level" whileFocus={{ scale: 1.01 }} transition={spring} />
+              <motion.textarea className="min-h-28 resize-none rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none transition-colors placeholder:text-stone-500 focus:border-amber-200/50 focus:ring-2 focus:ring-amber-200/20" placeholder="Tell us your child's current chess level" whileFocus={{ scale: 1.015, borderColor: "rgba(253,230,138,0.55)" }} transition={spring} />
             </label>
             <div className="mt-3 flex flex-wrap gap-3">
-              <CtaButton href={`tel:${contact.phone.replace(/\s+/g, "")}`}>Call Now</CtaButton>
+              <motion.button
+                type="submit"
+                className="group relative inline-flex min-h-12 items-center justify-center overflow-hidden rounded-full bg-gradient-to-r from-amber-200 via-amber-400 to-yellow-600 px-5 text-sm font-semibold text-stone-950 outline-none shadow-[0_16px_42px_rgba(245,158,11,0.24)] focus-visible:ring-2 focus-visible:ring-amber-200 focus-visible:ring-offset-2 focus-visible:ring-offset-[#070604]"
+                whileHover={{ y: -3, scale: 1.035 }}
+                whileTap={{ scale: 0.97 }}
+                animate={{ boxShadow: ["0 16px 42px rgba(245,158,11,0.24)", "0 20px 68px rgba(245,158,11,0.48)", "0 16px 42px rgba(245,158,11,0.24)"] }}
+                transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
+              >
+                <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/35 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
+                <span className="relative">Book Free Demo</span>
+              </motion.button>
               <CtaButton href={`https://wa.me/${contact.whatsapp}?text=Hello%20Sooriya%20Chess%20Academy%2C%20I%20would%20like%20to%20schedule%20a%20demo%20class.`} kind="secondary">
                 Request on WhatsApp
               </CtaButton>
             </div>
+            <AnimatePresence>
+              {demoSubmitted ? (
+                <motion.div
+                  className="rounded-2xl border border-emerald-300/25 bg-emerald-300/10 p-4 text-sm leading-6 text-emerald-100"
+                  initial={{ opacity: 0, y: 12, scale: 0.96 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={spring}
+                >
+                  Demo request noted. For fastest confirmation, tap WhatsApp and send the pre-filled message.
+                </motion.div>
+              ) : null}
+            </AnimatePresence>
           </form>
           <div className="mt-6 grid gap-2 text-stone-300">
             <a className="text-white transition-colors hover:text-amber-100" href={`tel:${contact.phone.replace(/\s+/g, "")}`}>{contact.phone}</a>
@@ -877,6 +1098,19 @@ export default function SooriyaLandingPage() {
           <a className="hover:text-white" href="#programs">Programs</a>
         </div>
       </motion.footer>
+
+      <motion.a
+        className="fixed bottom-5 right-5 z-40 grid h-14 w-14 place-items-center rounded-full border border-emerald-200/30 bg-emerald-400 text-xl text-stone-950 shadow-[0_16px_48px_rgba(16,185,129,0.35)] outline-none focus-visible:ring-2 focus-visible:ring-emerald-100 sm:h-16 sm:w-16"
+        href={`https://wa.me/${contact.whatsapp}?text=Hello%20Sooriya%20Chess%20Academy%2C%20I%20want%20to%20book%20a%20free%20demo%20class.`}
+        aria-label="Chat with Sooriya Chess Academy on WhatsApp"
+        initial={{ opacity: 0, scale: 0.75, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0, boxShadow: ["0 16px 48px rgba(16,185,129,0.35)", "0 18px 70px rgba(16,185,129,0.58)", "0 16px 48px rgba(16,185,129,0.35)"] }}
+        whileHover={{ scale: 1.08, y: -3 }}
+        whileTap={{ scale: 0.94 }}
+        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+      >
+        ☎
+      </motion.a>
     </main>
   );
 }
